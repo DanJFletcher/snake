@@ -59,9 +59,112 @@ var Game = {
 
 
     update: function() {
-        // The update function is called constantly at a high rate (somewhere around 60fps),
-        // updating the game field every time.
-        // We are going to leave that one empty for now.
+
+        // Handle arrow key presses, while not allowing illegal direction changes that will kill the player.
+
+        if (cursors.right.isDown && direction!='left')
+        {
+            new_direction = 'right';
+        }
+        else if (cursors.left.isDown && direction!='right')
+        {
+            new_direction = 'left';
+        }
+        else if (cursors.up.isDown && direction!='down')
+        {
+            new_direction = 'up';
+        }
+        else if (cursors.down.isDown && direction!='up')
+        {
+            new_direction = 'down';
+        }
+
+
+        // A formula to calculate game speed based on the score.
+        // The higher the score, the higher the game speed, with a maximum of 10;
+        speed = Math.min(10, Math.floor(score/5));
+        // Update speed value on game screen.
+        speedTextValue.text = '' + speed;
+
+        // Since the update function of Phaser has an update rate of around 60 FPS,
+        // we need to slow that down make the game playable.
+
+        // Increase a counter on every update call.
+        updateDelay++;
+
+        // Do game stuff only if the counter is aliquot to (10 - the game speed).
+        // The higher the speed, the more frequently this is fulfilled,
+        // making the snake move faster.
+        if (updateDelay % (10 - speed) == 0) {
+
+
+            // Snake movement
+
+            var firstCell = snake[snake.length - 1],
+                lastCell = snake.shift(),
+                oldLastCellx = lastCell.x,
+                oldLastCelly = lastCell.y;
+
+            // If a new direction has been chosen from the keyboard, make it the direction of the snake now.
+            if(new_direction){
+                direction = new_direction;
+                new_direction = null;
+            }
+
+
+            // Change the last cell's coordinates relative to the head of the snake, according to the direction.
+
+            if(direction == 'right'){
+
+                lastCell.x = firstCell.x + squareSize;
+                lastCell.y = firstCell.y;
+            }
+            else if(direction == 'left'){
+                lastCell.x = firstCell.x - squareSize;
+                lastCell.y = firstCell.y;
+            }
+            else if(direction == 'up'){
+                lastCell.x = firstCell.x;
+                lastCell.y = firstCell.y - squareSize;
+            }
+            else if(direction == 'down'){
+                lastCell.x = firstCell.x;
+                lastCell.y = firstCell.y + squareSize;
+            }
+
+
+            // Place the last cell in the front of the stack.
+            // Mark it the first cell.
+
+            snake.push(lastCell);
+            firstCell = lastCell;
+
+            // END OF SNAKE movement
+
+
+            
+            // =====================
+            // COLLISION DETECTION
+            // Increase length of snake if an apple had been eaten.
+            // Create a block in the back of the snake with the old position of the previous last block
+            // (it has moved now along with the rest of the snake).
+
+            if(addNew){
+                snake.unshift(game.add.sprite(oldLastCellx, oldLastCelly, 'snake'));
+                addNew = false;
+            }
+
+            // Check for apple collision.
+            this.appleCollision();
+
+            // Check for collision with self. Parameter is the head of the snake.
+            this.selfCollision(firstCell);
+
+            // Check with collision with wall. Parameter is the head of the snake.
+            this.wallCollision(firstCell);
+
+        }
+
     },
 
 
