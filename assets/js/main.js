@@ -10,4 +10,7 @@ game.state.add('Menu', Menu);
 // Add the Game state.
 game.state.add('Game', Game);
 
+// Add the Game_over state.
+game.state.add('Game_Over', Game_Over);
+
 game.state.start('Menu');
