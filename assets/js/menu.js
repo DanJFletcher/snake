@@ -9,6 +9,11 @@ var Menu = {
   create: function() {
     // Add a sprite to your game, here the sprite will be the game's logo
     // Parameters are : X , Y , image name (see above)
-    this.add.sprite(0, 0, 'menu');
+    this.add.button(0, 0, 'menu', this.startGame, this);
+  },
+
+  startGame: function() {
+    // Change the state to the actual game.
+    this.state.start('Game');
   }
 };
